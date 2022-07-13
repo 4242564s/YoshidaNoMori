@@ -2,12 +2,17 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// FPSで操作するためのコントローラー
+/// </summary>
 public class FPSController : MonoBehaviour
 {
     float x, z;
+    [SerializeField]
     float speed = 0.1f;
 
     public GameObject cam;
+    Rigidbody rigidbody;
     Quaternion cameraRot, characterRot;
     float Xsensityvity = 3f, Ysensityvity = 3f;
     
@@ -22,6 +27,7 @@ public class FPSController : MonoBehaviour
         Cursor.visible = false;
         cameraRot = cam.transform.localRotation;
         characterRot = transform.localRotation;
+        rigidbody = GetComponent<Rigidbody>();
     }
 
     // Update is called once per frame
@@ -42,7 +48,6 @@ public class FPSController : MonoBehaviour
 
         UpdateCursorLock();
     }
-
     private void FixedUpdate()
     {
         x = 0;
@@ -50,12 +55,15 @@ public class FPSController : MonoBehaviour
 
         x = Input.GetAxisRaw("Horizontal") * speed;
         z = Input.GetAxisRaw("Vertical") * speed;
-
+    
         //transform.position += new Vector3(x,0,z);
-
-        transform.position += cam.transform.forward * z + cam.transform.right * x;
+        if(x != 0 || z != 0){
+            rigidbody.velocity = transform.forward * z + transform.right * x;
+        }else{
+            rigidbody.velocity = Vector3.zero;
+        }
     }
-
+    
 
     public void UpdateCursorLock()
     {
