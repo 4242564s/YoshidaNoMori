@@ -20,6 +20,7 @@ public class FPSController : MonoBehaviour
 
     //変数の宣言(角度の制限用)
     float minX = -90f, maxX = 90f;
+    private GameObject light;
 
     // Start is called before the first frame update
     void Start()
@@ -28,6 +29,7 @@ public class FPSController : MonoBehaviour
         cameraRot = cam.transform.localRotation;
         characterRot = transform.localRotation;
         rigidbody = GetComponent<Rigidbody>();
+        light = cam.transform.Find("Spot Light").gameObject;
     }
 
     // Update is called once per frame
@@ -45,8 +47,13 @@ public class FPSController : MonoBehaviour
         cam.transform.localRotation = cameraRot;
         transform.localRotation = characterRot;
 
-
+        Light();
         UpdateCursorLock();
+    }
+    private void Light(){
+        if(Input.GetMouseButtonDown(0)){
+            light.SetActive(!light.activeSelf);
+        }
     }
     private void FixedUpdate()
     {
