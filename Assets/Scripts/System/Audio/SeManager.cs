@@ -5,13 +5,13 @@ using UnityEngine;
 public class SeManager : SingletonMonoBehaviour<SeManager>
 {
 
-    public const int TEXT_SOUND = 0;
+    public const int WALK = 0;
     private readonly string SE_PATH = "Audio/SE/";
     private AudioSource[] audio_source_list;
     private AudioSetting setting;
     private bool is_init = false;
     private readonly Dictionary<int,string> SOUNDS = new Dictionary<int,string>(){
-    {TEXT_SOUND,"TextSound"}};
+    {WALK,"Walk"}};
     new private void Awake(){
         base.Awake();
         Initialize();
@@ -37,16 +37,25 @@ public class SeManager : SingletonMonoBehaviour<SeManager>
     /// </summary>
     /// <param name="sound_id"></param>
     /// <param name="is_one_shot"></param>
-    public void Play(int sound_id,bool is_one_shot = false){
-        if (is_one_shot) audio_source_list[sound_id].PlayOneShot(audio_source_list[sound_id].clip);
-        else audio_source_list[sound_id].Play();
+    public AudioSource Play(Transform tf,int sound_id,bool is_one_shot = false){
+        GameObject obj = new GameObject();
+        obj.transform.parent = tf;
+        obj.transform.localPosition = Vector3.zero;
+        AudioSource audio = obj.AddComponent<AudioSource>();
+        audio.outputAudioMixerGroup = setting.Audio_mixer_se;
+        audio.clip = audio_source_list[sound_id].clip;
+        audio.volume = 0.5f;
+        audio.maxDistance = 10;
+        if (is_one_shot) audio.PlayOneShot(audio_source_list[sound_id].clip);
+        else audio.Play();
+        StartCoroutine(Checking(audio,()=>{
+            if(obj != null) Destroy(obj);
+        } ));
+        return audio;
     }
-    /// <summary>
-    /// 音声が鳴っている間は重複しない。
-    /// </summary>
-    /// <param name="sound_id"></param>
-    public void PlayNotDuplicate(int sound_id){
-        if(!audio_source_list[sound_id].isPlaying) audio_source_list[sound_id].Play();
+    public void Stop(AudioSource stop_audio){
+        stop_audio.Stop();
+        Destroy(stop_audio.gameObject);
     }
     /// <summary>
     /// 効果音を再生。ピッチを変更することが可能。
@@ -74,7 +83,8 @@ public class SeManager : SingletonMonoBehaviour<SeManager>
     private IEnumerator Checking(AudioSource audio,UnityEngine.Events.UnityAction callback) {
         while(true) {
             yield return null;
-            if (!audio.isPlaying) {
+            
+            if (audio == null || !audio.isPlaying) {
                 callback();
                 break;
             }
