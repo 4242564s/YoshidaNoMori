@@ -87,7 +87,7 @@ public class Door : BaseEventObject{
     /// </summary>
     public void Open(float speed,ItemInfo item,bool is_force){
         if(!GetIsLock){
-            if((GetDoorState == DoorState.Close && GetDoorType == DoorType.OpenAndClose ) || is_force){
+            if((GetDoorState == DoorState.Close) || is_force){
                 door_state = DoorState.Most;
                 IsActive = false;
                 transform
