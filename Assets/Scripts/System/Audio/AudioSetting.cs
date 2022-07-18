@@ -27,7 +27,7 @@ public class AudioSetting : MonoBehaviour {
     float ConvertVolume2dB(float volume) => 20f * Mathf.Log10(Mathf.Clamp(volume, 0f, 1f));
     public void Initialize() {
         if(!is_init){
-            audio_mixer_groups = Resources.LoadAll<AudioMixerGroup>("Audio/AudioMixer");
+            audio_mixer_groups = Resources.LoadAll<AudioMixerGroup>("Audio/Master");
             is_init = true;
         }
     }

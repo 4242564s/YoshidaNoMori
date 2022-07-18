@@ -9,8 +9,7 @@ public class FPSController : MonoBehaviour
 {
     float x, z;
     [SerializeField]
-    float speed = 0.1f;
-
+    float speed = 2f;
     public GameObject cam;
     Rigidbody rigidbody;
     Quaternion cameraRot, characterRot;
@@ -20,43 +19,55 @@ public class FPSController : MonoBehaviour
 
     //変数の宣言(角度の制限用)
     float minX = -90f, maxX = 90f;
+    private GameObject light;
+    private AudioSource audio;
 
     // Start is called before the first frame update
-    void Start()
-    {
-        Cursor.visible = false;
+    public void Initialize(){
         cameraRot = cam.transform.localRotation;
         characterRot = transform.localRotation;
         rigidbody = GetComponent<Rigidbody>();
+        light = cam.transform.Find("FlashLight").gameObject;
     }
 
     // Update is called once per frame
-    void Update()
-    {
+    public void Move(){
+        if(GameController.Instance.DisplayState == GameDisplayState.Pause){
+            transform.localRotation = characterRot;
+            return;
+        }
+
         float xRot = Input.GetAxis("Mouse X") * Ysensityvity;
         float yRot = Input.GetAxis("Mouse Y") * Xsensityvity;
+        x = 0;
+        z = 0;
+        x = Input.GetAxisRaw("Horizontal") * speed;
+        z = Input.GetAxisRaw("Vertical") * speed;
 
+        if(audio == null && (x != 0 || z != 0)){
+            audio = SeManager.Instance.Play(transform,SeManager.WALK,false);
+        }else if(audio != null && (x == 0 && z == 0)){
+             SeManager.Instance.Stop(audio);
+        }
         cameraRot *= Quaternion.Euler(-yRot, 0, 0);
         characterRot *= Quaternion.Euler(0, xRot, 0);
 
         //Updateの中で作成した関数を呼ぶ
         cameraRot = ClampRotation(cameraRot);
-
         cam.transform.localRotation = cameraRot;
         transform.localRotation = characterRot;
-
-
-        UpdateCursorLock();
+        
+        Light();
     }
-    private void FixedUpdate()
-    {
-        x = 0;
-        z = 0;
+    private void Light(){
+        if(Input.GetMouseButtonDown(0)){
+            light.SetActive(!light.activeSelf);
+        }
+    }
+    public void PhysicsFix()
+    {    
+        if(GameController.Instance.DisplayState == GameDisplayState.Pause) return;
 
-        x = Input.GetAxisRaw("Horizontal") * speed;
-        z = Input.GetAxisRaw("Vertical") * speed;
-    
-        //transform.position += new Vector3(x,0,z);
         if(x != 0 || z != 0){
             rigidbody.velocity = transform.forward * z + transform.right * x;
         }else{
@@ -64,31 +75,8 @@ public class FPSController : MonoBehaviour
         }
     }
     
-
-    public void UpdateCursorLock()
-    {
-        if(Input.GetKeyDown(KeyCode.Escape))
-        {
-            cursorLock = false;
-        }
-        else if(Input.GetMouseButton(0))
-        {
-            cursorLock = true;
-        }
-
-
-        if (cursorLock)
-        {
-            Cursor.lockState = CursorLockMode.Locked;
-        }
-        else if(!cursorLock)
-        {
-            Cursor.lockState = CursorLockMode.None;
-        }
-    }
-    
     //角度制限関数の作成
-    public Quaternion ClampRotation(Quaternion q)
+    private Quaternion ClampRotation(Quaternion q)
     {
         //q = x,y,z,w (x,y,zはベクトル（量と向き）：wはスカラー（座標とは無関係の量）)
 
