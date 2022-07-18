@@ -45,6 +45,8 @@ public class InputRaycast : MonoBehaviour {
         }
     }
     public void EventEffect(){
-        event_object?.EventAction(item_manager.PickItem);
+        if(event_object != null && event_object.IsActive){
+            event_object?.EventAction(item_manager.PickItem);
+        }
     }
 }
