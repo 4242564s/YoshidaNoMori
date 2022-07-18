@@ -12,30 +12,47 @@ public enum GameDisplayState{
 }
 
 public class GameController : SingletonMonoBehaviour<GameController> {
+    public GameDisplayState DisplayState {get; set;}
+    
     public Transform GetParentCanvas{get;private set;}
     public PostProcessVolume GetMainPostVolume{get;private set;}
     public InputSystem GetInputSystem {get;private set;}
     public FPSController GetFpsController {get;private set;}
     public CursorManager GetCursorManager {get;private set;}
     public CanvasPauseManager GetCanvasPauseManager {get;private set;}
-
-    public GameDisplayState DisplayState {get;set;}
+    public DoorManager GetDoorManager{get;private set;}
+    public CanvasNavigation GetCanvasNavigation{get;private set;}
+    public InputRaycast GetInputRaycast {get;private set;}
+    public NoticeMessage GetNoticeMessage{get;private set;}
+    public ItemManager GetItemManager{get;private set;}
     /// <summary>
     /// 初期化
     /// </summary>
     protected override void Awake(){
         base.Awake();
+        Transform system = GameObject.Find("System").transform;
+        GetParentCanvas = GameObject.Find("Canvas").transform;
         GetMainPostVolume = GameObject.Find("Post-process Volume").GetComponent<PostProcessVolume>();
         GetFpsController = GameObject.Find("Player").GetComponent<FPSController>();
-        GetParentCanvas = GameObject.Find("Canvas").transform;
+        
         GetInputSystem = new InputSystem();
         GetCursorManager = new CursorManager();
         GetCanvasPauseManager = new CanvasPauseManager();
+        GetDoorManager = new DoorManager();
+        GetCanvasNavigation = new CanvasNavigation();
+        GetItemManager = new ItemManager();
+
+        GetInputRaycast = system.GetComponent<InputRaycast>();
+        GetNoticeMessage = system.GetComponent<NoticeMessage>();
+    
         AllComponentInitialize();
         SetInputs();
     }
     private void AllComponentInitialize(){
         GetFpsController.Initialize();
+        GetDoorManager.Initialize();
+        GetInputRaycast.Initialize();
+        GetNoticeMessage.Initialize();
         GetCursorManager.CursorIsEnable(false);
         DisplayState = new GameDisplayState();
         DisplayState = GameDisplayState.Main;
@@ -44,6 +61,7 @@ public class GameController : SingletonMonoBehaviour<GameController> {
     /// 全てのゲーム描画をつかさどる
     /// </summary>
     private void Update(){
+        GetInputRaycast.RayForEventObject();
         //キー入力を受付
         GetInputSystem.InputReception();
         //自身を動かす
@@ -65,5 +83,29 @@ public class GameController : SingletonMonoBehaviour<GameController> {
             if(DisplayState == GameDisplayState.Main) GetCanvasPauseManager.OpenDisplay(null);
             else if(DisplayState == GameDisplayState.Pause) GetCanvasPauseManager.CloseDisplay();
         });
+        //E
+        //アイテムを拾う、扉を開ける、閉める（ステージ上のギミックを行う時のコマンド）
+        GetInputSystem.OverrideKey(new KeyInputType(KeyCode.E,InputType.InputDown),
+        ()=>{
+            if(DisplayState == GameDisplayState.Main) GetInputRaycast.EventEffect();
+        });
+        //LeftShift
+        //押している間走る、離すと歩く。
+        GetInputSystem.OverrideKey(new KeyInputType(KeyCode.LeftShift,InputType.InputDown),
+        ()=>{
+            if(DisplayState == GameDisplayState.Main) GetFpsController.IsRun = true;
+        });
+        GetInputSystem.OverrideKey(new KeyInputType(KeyCode.LeftShift,InputType.InputUp),
+        ()=>{
+            if(DisplayState == GameDisplayState.Main) GetFpsController.IsRun = false;
+        });
+        //Q
+        //アイテムを使う
+        GetInputSystem.OverrideKey(new KeyInputType(KeyCode.Q,InputType.InputDown),
+        ()=>{
+            if(DisplayState == GameDisplayState.Main) GetItemManager.UseItem();
+        });
+        
     }
+
 }

@@ -9,8 +9,11 @@ public class FPSController : MonoBehaviour
 {
     float x, z;
     [SerializeField]
-    float speed = 2f;
-    public GameObject cam;
+    float walk_speed = 2f;
+    [SerializeField]
+    float run_speed = 4f;
+    public bool IsRun{get;set;}
+    public Camera cam;
     Rigidbody rigidbody;
     Quaternion cameraRot, characterRot;
     float Xsensityvity = 3f, Ysensityvity = 3f;
@@ -22,6 +25,7 @@ public class FPSController : MonoBehaviour
     private GameObject light;
     private AudioSource audio;
 
+    private BaseEventObject event_obj;
     // Start is called before the first frame update
     public void Initialize(){
         cameraRot = cam.transform.localRotation;
@@ -29,7 +33,6 @@ public class FPSController : MonoBehaviour
         rigidbody = GetComponent<Rigidbody>();
         light = cam.transform.Find("FlashLight").gameObject;
     }
-
     // Update is called once per frame
     public void Move(){
         if(GameController.Instance.DisplayState == GameDisplayState.Pause){
@@ -41,6 +44,7 @@ public class FPSController : MonoBehaviour
         float yRot = Input.GetAxis("Mouse Y") * Xsensityvity;
         x = 0;
         z = 0;
+        float speed = (IsRun ? run_speed : walk_speed);
         x = Input.GetAxisRaw("Horizontal") * speed;
         z = Input.GetAxisRaw("Vertical") * speed;
 
