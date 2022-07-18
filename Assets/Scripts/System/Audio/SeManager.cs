@@ -5,13 +5,13 @@ using UnityEngine;
 public class SeManager : SingletonMonoBehaviour<SeManager>
 {
 
-    public const int WALK = 0;
+    public const int WALK = 0, VOICE = 1;
     private readonly string SE_PATH = "Audio/SE/";
     private AudioSource[] audio_source_list;
     private AudioSetting setting;
     private bool is_init = false;
     private readonly Dictionary<int,string> SOUNDS = new Dictionary<int,string>(){
-    {WALK,"Walk"}};
+    {WALK,"Walk"},{VOICE,"Voice"}};
     new private void Awake(){
         base.Awake();
         Initialize();
@@ -37,7 +37,7 @@ public class SeManager : SingletonMonoBehaviour<SeManager>
     /// </summary>
     /// <param name="sound_id"></param>
     /// <param name="is_one_shot"></param>
-    public AudioSource Play(Transform tf,int sound_id,bool is_one_shot = false){
+    public AudioSource Play(Transform tf,int sound_id,bool is_loop,bool is_one_shot = false){
         GameObject obj = new GameObject();
         obj.transform.parent = tf;
         obj.transform.localPosition = Vector3.zero;
@@ -46,6 +46,7 @@ public class SeManager : SingletonMonoBehaviour<SeManager>
         audio.clip = audio_source_list[sound_id].clip;
         audio.volume = 0.5f;
         audio.maxDistance = 10;
+        audio.loop = is_loop;
         if (is_one_shot) audio.PlayOneShot(audio_source_list[sound_id].clip);
         else audio.Play();
         StartCoroutine(Checking(audio,()=>{

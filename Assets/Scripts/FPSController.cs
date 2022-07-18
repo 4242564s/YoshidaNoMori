@@ -49,7 +49,7 @@ public class FPSController : MonoBehaviour
         z = Input.GetAxisRaw("Vertical") * speed;
 
         if(audio == null && (x != 0 || z != 0)){
-            audio = SeManager.Instance.Play(transform,SeManager.WALK,false);
+            audio = SeManager.Instance.Play(transform,SeManager.WALK,false,false);
         }else if(audio != null && (x == 0 && z == 0)){
              SeManager.Instance.Stop(audio);
         }
