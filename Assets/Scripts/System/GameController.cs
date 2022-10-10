@@ -25,6 +25,7 @@ public class GameController : SingletonMonoBehaviour<GameController> {
     public InputRaycast GetInputRaycast {get;private set;}
     public NoticeMessage GetNoticeMessage{get;private set;}
     public ItemManager GetItemManager{get;private set;}
+    public CanvasItemHelper GetCanvasItemHelper{get;private set;}
     /// <summary>
     /// 初期化
     /// </summary>
@@ -35,6 +36,7 @@ public class GameController : SingletonMonoBehaviour<GameController> {
         GetMainPostVolume = GameObject.Find("Post-process Volume").GetComponent<PostProcessVolume>();
         GetFpsController = GameObject.Find("Player").GetComponent<FPSController>();
         
+        GetCanvasItemHelper = system.GetComponent<CanvasItemHelper>();
         GetInputSystem = new InputSystem();
         GetCursorManager = new CursorManager();
         GetCanvasPauseManager = new CanvasPauseManager();
@@ -53,6 +55,7 @@ public class GameController : SingletonMonoBehaviour<GameController> {
         GetDoorManager.Initialize();
         GetInputRaycast.Initialize();
         GetNoticeMessage.Initialize();
+        GetCanvasItemHelper.Initialize();
         GetCursorManager.CursorIsEnable(false);
         DisplayState = new GameDisplayState();
         DisplayState = GameDisplayState.Main;
@@ -66,6 +69,7 @@ public class GameController : SingletonMonoBehaviour<GameController> {
         GetInputSystem.InputReception();
         //自身を動かす
         GetFpsController.Move();
+        RealTimeInputs();
     }
     /// <summary>
     /// 全ての物理演算をつかさどる
@@ -105,7 +109,21 @@ public class GameController : SingletonMonoBehaviour<GameController> {
         ()=>{
             if(DisplayState == GameDisplayState.Main) GetItemManager.UseItem();
         });
-        
+        //仮V
+        //アイテムを調べる
+        GetInputSystem.OverrideKey(new KeyInputType(KeyCode.V,InputType.InputDown),
+        ()=>{
+            if(DisplayState == GameDisplayState.Main) GetItemManager.CheckItem();
+        });
+    }
+    private void RealTimeInputs(){
+        //ホイール
+        GetInputSystem.Axis("Mouse ScrollWheel",0.1f,true,()=>{
+            GetItemManager.ChangeItem(1);
+        });
+        GetInputSystem.Axis("Mouse ScrollWheel",-0.1f,false,()=>{
+            GetItemManager.ChangeItem(-1);
+        });
     }
 
 }

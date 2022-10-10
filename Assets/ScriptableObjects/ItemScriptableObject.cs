@@ -7,6 +7,14 @@ public class ItemScriptableObject : ScriptableObject{
     /// </summary>
     public string ItemName;
     /// <summary>
+    /// アイテム説明文
+    /// </summary>
+    public string ItemHelp;
+    /// <summary>
+    /// アイテムを使ってみようとしたときのメッセージ
+    /// </summary>
+    public string UseMessage;
+    /// <summary>
     /// アイテムID
     /// </summary>
     public int ItemId;
@@ -19,8 +27,15 @@ public class ItemScriptableObject : ScriptableObject{
     /// </summary>
     public Vector3 HadScale;
     /// <summary>
-    /// 使った時消耗するか
+    /// 使える回数
     /// </summary>
-    public bool IsExhausted; 
+    public int ExhaustedCount; 
+    /// <summary>
+    /// どこでも使えるアイテム化
+    /// </summary>
     public bool IsAnyTime;
+    /// <summary>
+    /// 素材の場所
+    /// </summary>
+    public string SourcePath;
 }
