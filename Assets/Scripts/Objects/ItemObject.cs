@@ -16,21 +16,24 @@ public class ItemObject : BaseEventObject {
         GameController.Instance.GetNoticeMessage.Open($"{GetItemName} を手に入れた",2f);
         ItemInfo pick_item = new ItemInfo(
             GetItemName,master.ItemId,
-            GetKeyId,master.IsExhausted,
-            master.IsAnyTime,master.HadScale
+            GetKeyId,master.ItemHelp,master.ExhaustedCount,
+            master.IsAnyTime,master.SourcePath,master.HadScale
         );
         GameObject obj = Instantiate(gameObject);
         pick_item.InstanceObj = obj;
         if(obj.TryGetComponent<BoxCollider>(out var x)){
             Destroy(x);
         }
-        if(pick_item.GetIsExhausted){
-            pick_item.UseCallBack.AddListener(()=>{
+        pick_item.UseCallBack.AddListener(()=>{
+            pick_item.ExhaustedCount--;
+            if(pick_item.ExhaustedCount <= 0){
+                item_manager.GetHaveItemInfo.Remove(pick_item);
                 Destroy(pick_item.InstanceObj);
-            });
-        }
+            }
+        });
+        
         Destroy(obj.GetComponent<ItemObject>());
-        item_manager.PickItem = pick_item;
+        item_manager.AddItem(pick_item);
         IsActive = false;
         Destroy(gameObject);
     }

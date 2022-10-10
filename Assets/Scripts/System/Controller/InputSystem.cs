@@ -58,7 +58,13 @@ public class InputSystem{
         events.AddListener(action);
         key_binds.Add(key_code,events);
     }
-
+    public void Axis(string axis_key,float lower_limit,bool is_plus,UnityAction action){
+        if(Input.GetAxis(axis_key) >= lower_limit && is_plus){
+            action?.Invoke();
+        }else if(Input.GetAxis(axis_key) <= lower_limit && !is_plus){
+            action?.Invoke();
+        }
+    }
     /// <summary>
     /// キー入力受付(Updateで呼び出す)
     /// </summary>
