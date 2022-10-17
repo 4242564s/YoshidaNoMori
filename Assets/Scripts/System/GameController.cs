@@ -1,6 +1,8 @@
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Rendering.PostProcessing;
+using System.Collections;
+using System.Collections.Generic;
 
 public enum GameDisplayState{
     //通常のゲーム進行画面
@@ -119,11 +121,20 @@ public class GameController : SingletonMonoBehaviour<GameController> {
     private void RealTimeInputs(){
         //ホイール
         GetInputSystem.Axis("Mouse ScrollWheel",0.1f,true,()=>{
+            if(!GetItemManager.IsChangeItem) return;
             GetItemManager.ChangeItem(1);
+            StartCoroutine(ItemChangeDelay());
         });
         GetInputSystem.Axis("Mouse ScrollWheel",-0.1f,false,()=>{
+            if(!GetItemManager.IsChangeItem) return;
             GetItemManager.ChangeItem(-1);
+            StartCoroutine(ItemChangeDelay());
         });
     }
-
+    public IEnumerator ItemChangeDelay()
+    {
+        GetItemManager.IsChangeItem = false;
+        yield return new WaitForSeconds(GetFpsController.GetChangeItemSpeed);
+        GetItemManager.IsChangeItem = true;
+    }
 }
