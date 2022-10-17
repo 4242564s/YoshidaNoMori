@@ -18,6 +18,11 @@ public class ItemManager{
     //UI部分と結合したくないが、面倒なのでUI部分をここで作る
     private Image item_image;
     /// <summary>
+    /// アイテムを持ち帰ることができるかどうか
+    /// </summary>
+    /// <value></value>
+    public bool IsChangeItem{get; set;} = true;
+    /// <summary>
     /// 持っているアイテム
     /// </summary>
     public ItemInfo PickItem{
@@ -46,7 +51,7 @@ public class ItemManager{
     /// <summary>
     /// アイテムを持ち替える
     /// </summary>
-    /// <param name="change_index"></param>
+    /// <param name="change_index"></param>]
     public void ChangeItem(int change_index){
         if(pick_item == null && have_item_infos.Count == 1){
             PickItem = have_item_infos[0];

@@ -12,6 +12,9 @@ public class FPSController : MonoBehaviour
     float walk_speed = 2f;
     [SerializeField]
     float run_speed = 4f;
+    [SerializeField,Tooltip("アイテム切り替え可能までの時間")]
+    float change_item_speed = 0.5f;
+    public float GetChangeItemSpeed {get => change_item_speed;}
     public bool IsRun{get;set;}
     public Camera cam;
     Rigidbody rigidbody;
